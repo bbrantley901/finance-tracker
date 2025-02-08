@@ -10,17 +10,23 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD", "your_password")  # Use an app pass
 IMAP_SERVER = os.getenv("IMAP_SERVER", "imap.example.com")
 
 # --- File Paths ---
-PROCESSED_IDS_FILE = "processed_transactions.txt"  # No longer strictly needed, but kept for compatibility.
+PROCESSED_IDS_FILE = "processed_transactions.txt"  # Still here for compatibility
 LOG_FILE = "error_log.txt"
 
 
 # --- Service Configurations ---
 SERVICE_CONFIG = {
-    "credit_card": {
-        "senders": ["alerts@mycreditcard.com", "notifications@mycreditcard.com"],
-        "subject_keywords": ["Transaction Alert", "Purchase Notification"],
-        "parser": "parse_credit_card_email",
+    "credit_card_1": {
+        "senders": ["alerts@card1.com"],  # Replace with your actual sender
+        "subject_keywords": ["Transaction Alert"],  # Replace with actual keywords
+        "parser": "parse_credit_card_1_email",
     },
+    "credit_card_2": {
+        "senders": ["notifications@card2.com"],  # Replace with your actual sender
+        "subject_keywords": ["Purchase Notification"],  # Replace with actual keywords
+        "parser": "parse_credit_card_2_email",
+    },
+    # Add more credit cards as needed
     "paypal": {
         "senders": ["service@paypal.com"],
         "subject_keywords": ["Payment Received", "Payment Sent", "Receipt for Your Payment"],
@@ -36,4 +42,5 @@ SERVICE_CONFIG = {
         "subject_keywords": ["Transaction Alert", "Debit Alert"],
         "parser": "parse_bank_email"
     }
+    # Add other services as needed
 }

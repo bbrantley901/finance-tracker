@@ -3,12 +3,13 @@ import re
 import datetime
 import logging
 
-def parse_credit_card_email(body):
-    """Parses credit card transaction emails."""
+def parse_credit_card_1_email(body):
+    """Parses credit card transaction emails from Card 1."""
     try:
-        date_match = re.search(r"Date:\s*(.*?)(?:\n|$)", body)
-        amount_match = re.search(r"Amount:\s*\$(.*?)(?:\n|$)", body)
-        merchant_match = re.search(r"Merchant:\s*(.*?)(?:\n|$)", body)
+        # --- Card 1 Specific Regular Expressions ---
+        date_match = re.search(r"Card 1 Date:\s*(.*?)(?:\n|$)", body)
+        amount_match = re.search(r"Card 1 Amount:\s*\$(.*?)(?:\n|$)", body)
+        merchant_match = re.search(r"Card 1 Merchant:\s*(.*?)(?:\n|$)", body)
 
         if date_match and amount_match and merchant_match:
             date_str = date_match.group(1).strip()
@@ -36,17 +37,62 @@ def parse_credit_card_email(body):
                 "date": date,
                 "amount": amount,
                 "merchant": merchant,
-                "service": "credit_card"
+                "service": "credit_card_1",  # Important: Use the service name from config.py
+                "card_type": "Card 1", # Include a card identifier
             }
         else:
-            logging.error(f"Could not parse credit card email: Missing fields. \n {body}")
+            logging.error(f"Could not parse credit card 1 email: Missing fields. \n {body}")
             return None
 
     except Exception as e:
-        logging.exception(f"Error parsing credit card email: {e}\nEmail Body:\n{body}")
+        logging.exception(f"Error parsing credit card 1 email: {e}\nEmail Body:\n{body}")
         return None
 
+def parse_credit_card_2_email(body):
+    """Parses credit card transaction emails from Card 2."""
+    try:
+        # --- Card 2 Specific Regular Expressions ---
+        date_match = re.search(r"Card 2 Transaction Date:\s*(.*?)(?:\n|$)", body)
+        amount_match = re.search(r"Card 2 Charge:\s*\$(.*?)(?:\n|$)", body)
+        merchant_match = re.search(r"Card 2 Vendor:\s*(.*?)(?:\n|$)", body)
 
+        if date_match and amount_match and merchant_match:
+            date_str = date_match.group(1).strip()
+            amount_str = amount_match.group(1).strip()
+            merchant = merchant_match.group(1).strip()
+
+            try:
+                date = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                try:
+                    date = datetime.datetime.strptime(date_str, "%m/%d/%Y").date()
+                except ValueError:
+                    try:
+                        date = datetime.datetime.strptime(date_str, "%b %d, %Y").date()
+                    except ValueError:
+                         logging.error(f"Could not parse date: {date_str}")
+                         return None
+            try:
+                amount = float(amount_str)
+            except ValueError:
+                logging.error(f"Could not parse amount: {amount_str}")
+                return None
+
+            return {
+                "date": date,
+                "amount": amount,
+                "merchant": merchant,
+                "service": "credit_card_2",  # Important: Use the service name from config.py
+                "card_type": "Card 2" # Include card identifier.
+            }
+        else:
+            logging.error(f"Could not parse credit card 2 email: Missing fields. \n {body}")
+            return None
+
+    except Exception as e:
+        logging.exception(f"Error parsing credit card 2 email: {e}\nEmail Body:\n{body}")
+        return None
+# --- Existing parsers (paypal, venmo, bank) remain unchanged ---
 def parse_paypal_email(body):
     """Parses PayPal transaction emails."""
     try:
